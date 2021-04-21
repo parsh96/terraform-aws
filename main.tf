@@ -1,8 +1,53 @@
-resource "aws_instance" "myec2" {
-   ami = "ami-082b5a644766e0e6f"
-   instance_type = "t2.micro"
-    tags = {
-    "Env"      = "Private"
-    "Location" = "Secret"
+resource "aws_security_group" "ubuntu" {
+  name        = "ubuntu-security-group"
+  description = "Allow HTTP, HTTPS and SSH traffic"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "terraform"
+  }
+}
+
+
+resource "aws_instance" "ubuntu" {
+  ami           = "ami-03ba3948f6c37a4b0"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "ubuntu"
+  }
+
+  vpc_security_group_ids = [
+    aws_security_group.ubuntu.id
+  ]
 }
